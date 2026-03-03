@@ -1,12 +1,13 @@
-from aiogram import F, Router
+from aiogram import Router
 from aiogram.filters import Command
 from aiogram.types import Message
 
-from app.data_base import test123
+from app.users_id import add_id_to_db
 
 router = Router()
 
 
-@router.message(F.text)
-async def logg(message: Message):
-    await message.bot.send_message(chat_id=-1003773950381, text=test123)
+@router.message(Command('start'))
+async def get_user_id(message: Message):
+    user_id = message.from_user.id
+    add_id_to_db(user_id)
