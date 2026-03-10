@@ -1,957 +1,913 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8" />
-    <title>True Dota — Путеводитель по мете 7.40c</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="styles.css" />
+  <meta charset="UTF-8" />
+  <title>True Dota — Путеводитель по мете 7.40c</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="styles.css" />
+
+  <script>
+    // если нет авторизации — кидаем на auth.html
+    if (!localStorage.getItem("tdAuth")) {
+      window.location.href = "auth.html";
+    }
+  </script>
 </head>
+
 <body class="td-root">
 <div class="td-layout">
-    <!-- SIDEBAR -->
-    <aside class="td-sidebar">
-        <div class="td-logo">
-            <div class="td-logo-icon">TD</div>
-            <div class="td-logo-text">
-                <span class="td-logo-title">True Dota</span>
-                <span class="td-logo-subtitle">meta & community</span>
-            </div>
-        </div>
-
-        <nav class="td-sidebar-nav">
-            <span class="td-nav-label">Навигация</span>
-            <a href="#section-home" class="td-nav-link td-nav-link--active">🏠 Главная</a>
-            <a href="#section-meta" class="td-nav-link">📊 Мета 7.40c</a>
-            <a href="#section-patches" class="td-nav-link">📜 История патчей</a>
-            <a href="#section-builds" class="td-nav-link">🛡️ Сборки</a>
-            <a href="#section-heroes" class="td-nav-link">🧙‍♂️ Топ героев</a>
-            <a href="#section-tierlist" class="td-nav-link">🏅 Тир-лист</a>
-            <a href="#section-draft" class="td-nav-link">🎯 Драфт-хелпер</a>
-            <a href="#section-stream" class="td-nav-link">📺 Трансляция</a>
-            <a href="#section-discussions" class="td-nav-link">💬 Обсуждения</a>
-            <a href="#section-register" class="td-nav-link">📝 Регистрация</a>
-            <a href="#section-profile" class="td-nav-link">👤 Профиль</a>
-            <a href="#section-about" class="td-nav-link">ℹ️ О проекте</a>
-        </nav>
-
-        <div class="td-sidebar-meta">
-            <div class="td-sidebar-block">
-                <p class="td-sidebar-title">Текущий патч</p>
-                <p class="td-sidebar-value">7.40c</p>
-                <p class="td-sidebar-note">
-                    Баланс после Largo
-                </p>
-            </div>
-            <div class="td-sidebar-block">
-                <p class="td-sidebar-title">Мета по ролям</p>
-                <p class="td-sidebar-tag">Slark / Drow / Spectre</p>
-                <p class="td-sidebar-tag">Void / Storm / Huskar</p>
-            </div>
-        </div>
-
-        <div class="td-sidebar-footer">
-            <div class="td-user-compact">
-                <div class="td-user-avatar">?</div>
-                <div class="td-user-info">
-                    <span class="td-user-name" id="sidebarUserName">Гость</span>
-                    <span class="td-user-status" id="sidebarUserStatus">Не авторизован</span>
-                </div>
-            </div>
-            <button class="td-btn td-btn-secondary" id="openRegisterFromSidebar">
-                Войти / Зарегистрироваться
-            </button>
-        </div>
-    </aside>
-
-    <!-- MAIN COLUMN -->
-    <div class="td-main-wrapper">
-        <!-- TOPBAR -->
-        <header class="td-topbar">
-            <div class="td-topbar-left">
-                <button class="td-mobile-menu-btn" id="mobileMenuToggle" aria-label="Меню">
-                    ☰
-                </button>
-                <div>
-                    <h1 class="td-topbar-title">True Dota</h1>
-                    <span class="td-topbar-subtitle">Путеводитель по мете и обсуждениям (7.40c)</span>
-                </div>
-            </div>
-            <div class="td-topbar-right">
-                <div class="td-search">
-                    <input id="globalSearchInput" type="search" placeholder="Поиск по героям, сборкам, темам..." />
-                </div>
-            </div>
-        </header>
-
-        <main class="td-main">
-            <!-- HERO / HOME -->
-            <section id="section-home" class="td-section td-reveal">
-                <div class="td-section-inner">
-                    <div class="td-hero-block">
-                        <h2>Добро пожаловать в <span class="accent">True Dota</span></h2>
-                        <p class="td-hero-text">
-                            Не гайды по ластхиту, а <strong>срез по мете 7.40c</strong>: какие герои сейчас сильные,
-                            какие сборки крутят паб, что обсуждает комьюнити. Всё в одном месте.
-                        </p>
-                        <div class="td-hero-actions">
-                            <a href="#section-meta" class="td-btn td-btn-primary">Смотреть мету</a>
-                            <a href="#section-discussions" class="td-btn td-btn-secondary">В обсуждения</a>
-                        </div>
-                        <div class="td-hero-stats">
-                            <div>
-                                <span class="td-hero-stats-label">Тем</span>
-                                <span class="td-hero-stats-value" id="statThreadsCount">0</span>
-                            </div>
-                            <div>
-                                <span class="td-hero-stats-label">Сборок</span>
-                                <span class="td-hero-stats-value" id="statBuildsCount">0</span>
-                            </div>
-                            <div>
-                                <span class="td-hero-stats-label">Героев в топе</span>
-                                <span class="td-hero-stats-value" id="statHeroesCount">0</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="td-hero-subgrid">
-                        <article class="td-card td-hero-meta-card">
-                            <p class="td-chip">Мета 7.40c</p>
-                            <h3>Сильные тренды</h3>
-                            <ul class="td-list">
-                                <li>🐍 Керри, которые живут в лейте: Slark, Drow, Spectre.</li>
-                                <li>🔮 Мобильные мидеры: Void Spirit, Storm Spirit, Huskar.</li>
-                                <li>🛡️ Жирные оффлейнеры с инициацией: Tidehunter, Axe, Legion.</li>
-                                <li>⚙️ Саппорты с сильным контролем: Witch Doctor, Clockwerk, Lich.</li>
-                            </ul>
-                        </article>
-
-                        <!-- Герой дня -->
-                        <article class="td-card td-hero-of-day" id="heroOfDayCard">
-                            <p class="td-chip td-chip-alt">Герой дня</p>
-                            <div class="td-hero-of-day-header">
-                                <div class="td-hero-of-day-main">
-                                    <div class="td-hero-icon-wrapper">
-                                        <img id="heroOfDayIcon" src="" alt="Иконка героя дня" />
-                                    </div>
-                                    <div>
-                                        <h3 id="heroOfDayName"></h3>
-                                        <p class="td-hero-role" id="heroOfDayRoles"></p>
-                                    </div>
-                                </div>
-                                <button class="td-btn td-btn-secondary td-btn-sm" id="heroOfDayMoreBtn">
-                                    Подробнее
-                                </button>
-                            </div>
-                            <p class="td-small-note" id="heroOfDayDesc"></p>
-                        </article>
-                    </div>
-                </div>
-            </section>
-
-            <!-- META SECTION -->
-            <section id="section-meta" class="td-section td-reveal">
-                <div class="td-section-inner">
-                    <div class="td-section-header">
-                        <h2>Мета 7.40c по ролям</h2>
-                        <p>Краткий обзор сильных героев на текущем патче (примерный список под фронтенд).</p>
-                    </div>
-
-                    <div class="td-meta-grid">
-                        <article class="td-card td-meta-card">
-                            <h3>Carry (позиция 1)</h3>
-                            <p class="td-card-subtitle">Главные «машины по убийству» в 7.40c.</p>
-                            <div class="td-meta-image">
-                                <img src="images/meta-carry.jpg" alt="Мета керри" />
-                            </div>
-                            <div class="td-tag-row">
-                                <span class="td-tag">Slark</span>
-                                <span class="td-tag">Drow Ranger</span>
-                                <span class="td-tag">Spectre</span>
-                            </div>
-                            <ul class="td-list td-list-dense">
-                                <li>Сильные в затяжных играх и хороши против жирных фронтлайнов.</li>
-                                <li>Игра строится вокруг их таймингов 2–3 артефактов.</li>
-                            </ul>
-                        </article>
-
-                        <article class="td-card td-meta-card">
-                            <h3>Mid (позиция 2)</h3>
-                            <p class="td-card-subtitle">Герои, которые задают темп карты.</p>
-                            <div class="td-meta-image">
-                                <img src="images/meta-mid.jpg" alt="Мета мид" />
-                            </div>
-                            <div class="td-tag-row">
-                                <span class="td-tag">Void Spirit</span>
-                                <span class="td-tag">Storm Spirit</span>
-                                <span class="td-tag">Huskar</span>
-                            </div>
-                            <ul class="td-list td-list-dense">
-                                <li>Ранние ротации, давление на боковые линии.</li>
-                                <li>Сильный burst и высокая мобильность.</li>
-                            </ul>
-                        </article>
-
-                        <article class="td-card td-meta-card">
-                            <h3>Offlane (позиция 3)</h3>
-                            <p class="td-card-subtitle">Толстые инициаторы для 5х5 драк.</p>
-                            <div class="td-meta-image">
-                                <img src="images/meta-offlane.jpg" alt="Мета оффлейн" />
-                            </div>
-                            <div class="td-tag-row">
-                                <span class="td-tag">Tidehunter</span>
-                                <span class="td-tag">Axe</span>
-                                <span class="td-tag">Legion Commander</span>
-                            </div>
-                            <ul class="td-list td-list-dense">
-                                <li>Дают контроль в ключевые моменты файта.</li>
-                                <li>Собирают ауры и тимфайт артефакты.</li>
-                            </ul>
-                        </article>
-
-                        <article class="td-card td-meta-card">
-                            <h3>Supports (4/5)</h3>
-                            <p class="td-card-subtitle">Контроль, вижен, сейв.</p>
-                            <div class="td-meta-image">
-                                <img src="images/meta-support.jpg" alt="Мета саппорты" />
-                            </div>
-                            <div class="td-tag-row">
-                                <span class="td-tag">Witch Doctor</span>
-                                <span class="td-tag">Clockwerk</span>
-                                <span class="td-tag">Lich</span>
-                            </div>
-                            <ul class="td-list td-list-dense">
-                                <li>Жёсткий контроль и сильные ультимейты.</li>
-                                <li>Сильная фаза лайна и полезные скиллы до лейта.</li>
-                            </ul>
-                        </article>
-                    </div>
-                </div>
-            </section>
-
-            <!-- PATCH HISTORY -->
-            <section id="section-patches" class="td-section td-reveal">
-                <div class="td-section-inner">
-                    <div class="td-section-header">
-                        <h2>История патчей</h2>
-                        
-                    </div>
-
-                    <div class="td-patch-timeline" id="patchTimeline">
-                        <!-- Заполняется из JS -->
-                    </div>
-                </div>
-            </section>
-
-            <!-- BUILDS SECTION -->
-            <section id="section-builds" class="td-section td-reveal">
-                <div class="td-section-inner">
-                    <div class="td-section-header">
-                        <h2>Сборки по героям</h2>
-                    </div>
-
-                    <div class="td-builds-filter">
-                        <div class="td-builds-filter-row">
-                            <div class="td-builds-filter-group">
-                                <span class="td-filter-label">Роль</span>
-                                <button class="td-chip td-chip-filter td-chip-filter--active" data-role="all">Все</button>
-                                <button class="td-chip td-chip-filter" data-role="carry">Carry</button>
-                                <button class="td-chip td-chip-filter" data-role="mid">Mid</button>
-                                <button class="td-chip td-chip-filter" data-role="offlane">Offlane</button>
-                                <button class="td-chip td-chip-filter" data-role="support">Support</button>
-                            </div>
-                            <div class="td-builds-filter-group td-builds-filter-selects">
-                                <label>
-                                    Стиль
-                                    <select id="buildStyleFilter">
-                                        <option value="all">Любой</option>
-                                        <option value="snowball">Snowball</option>
-                                        <option value="late">Late-game</option>
-                                        <option value="push">Push</option>
-                                        <option value="teamfight">Teamfight</option>
-                                    </select>
-                                </label>
-                                <label>
-                                    Длительность
-                                    <select id="buildDurationFilter">
-                                        <option value="all">Любая</option>
-                                        <option value="short">&lt; 30</option>
-                                        <option value="mid">30–45</option>
-                                        <option value="long">&gt; 45</option>
-                                    </select>
-                                </label>
-                                <label>
-                                    Сложность
-                                    <select id="buildDifficultyFilter">
-                                        <option value="all">Любая</option>
-                                        <option value="easy">Лёгкая</option>
-                                        <option value="medium">Средняя</option>
-                                        <option value="hard">Сложная</option>
-                                    </select>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="td-builds-grid" id="buildsGrid">
-                        <!-- Slark -->
-                        <article class="td-card td-build-card" data-role="carry"
-                                 data-style="snowball" data-duration="mid" data-difficulty="medium" data-build-id="slark-carry">
-                            <div class="td-build-image">
-                                <img src="images/build-slark.jpg" alt="Сборка Slark" />
-                            </div>
-                            <div class="td-build-content">
-                                <h3>Slark — керри в агрессивном темпе</h3>
-                                <p class="td-card-subtitle">Быстрые драки, постоянный сноубол.</p>
-                                <div class="td-build-items-row">
-                                    <span class="td-item-pill">Power Treads</span>
-                                    <span class="td-item-pill">Echo Sabre</span>
-                                    <span class="td-item-pill">Aghanim's Scepter</span>
-                                    <span class="td-item-pill">Black King Bar</span>
-                                    <span class="td-item-pill">Skadi</span>
-                                </div>
-                                <div class="td-vote-row">
-                                    <button class="td-btn td-btn-ghost td-btn-xs td-build-like-btn">👍</button>
-                                    <span class="td-vote-count" data-build-id="slark-carry">12</span>
-                                </div>
-                            </div>
-                        </article>
-
-                        <!-- Drow -->
-                        <article class="td-card td-build-card" data-role="carry"
-                                 data-style="late" data-duration="long" data-difficulty="medium" data-build-id="drow-carry">
-                            <div class="td-build-image">
-                                <img src="images/build-drow.jpg" alt="Сборка Drow Ranger" />
-                            </div>
-                            <div class="td-build-content">
-                                <h3>Drow Ranger — дальний керри</h3>
-                                <p class="td-card-subtitle">Фокус по фронтлайну и вышкам.</p>
-                                <div class="td-build-items-row">
-                                    <span class="td-item-pill">Power Treads</span>
-                                    <span class="td-item-pill">Hurricane Pike</span>
-                                    <span class="td-item-pill">Manta Style</span>
-                                    <span class="td-item-pill">Silver Edge</span>
-                                    <span class="td-item-pill">Skadi</span>
-                                </div>
-                                <div class="td-vote-row">
-                                    <button class="td-btn td-btn-ghost td-btn-xs td-build-like-btn">👍</button>
-                                    <span class="td-vote-count" data-build-id="drow-carry">9</span>
-                                </div>
-                            </div>
-                        </article>
-
-                        <!-- Void Spirit -->
-                        <article class="td-card td-build-card" data-role="mid"
-                                 data-style="snowball" data-duration="short" data-difficulty="hard" data-build-id="void-mid">
-                            <div class="td-build-image">
-                                <img src="images/build-void.jpg" alt="Сборка Void Spirit" />
-                            </div>
-                            <div class="td-build-content">
-                                <h3>Void Spirit — мобильный мидер</h3>
-                                <p class="td-card-subtitle">Идеален для пиков и быстрых убийств.</p>
-                                <div class="td-build-items-row">
-                                    <span class="td-item-pill">Bottle</span>
-                                    <span class="td-item-pill">Power Treads</span>
-                                    <span class="td-item-pill">Echo Sabre</span>
-                                    <span class="td-item-pill">Kaya &amp; Sange</span>
-                                    <span class="td-item-pill">Black King Bar</span>
-                                </div>
-                                <div class="td-vote-row">
-                                    <button class="td-btn td-btn-ghost td-btn-xs td-build-like-btn">👍</button>
-                                    <span class="td-vote-count" data-build-id="void-mid">7</span>
-                                </div>
-                            </div>
-                        </article>
-
-                        <!-- Tidehunter -->
-                        <article class="td-card td-build-card" data-role="offlane"
-                                 data-style="teamfight" data-duration="mid" data-difficulty="medium" data-build-id="tide-offlane">
-                            <div class="td-build-image">
-                                <img src="images/build-tide.jpg" alt="Сборка Tidehunter" />
-                            </div>
-                            <div class="td-build-content">
-                                <h3>Tidehunter — классический оффлейн</h3>
-                                <p class="td-card-subtitle">Рэвидж решает файты.</p>
-                                <div class="td-build-items-row">
-                                    <span class="td-item-pill">Vanguard</span>
-                                    <span class="td-item-pill">Blink Dagger</span>
-                                    <span class="td-item-pill">Pipe</span>
-                                    <span class="td-item-pill">Shiva's Guard</span>
-                                </div>
-                                <div class="td-vote-row">
-                                    <button class="td-btn td-btn-ghost td-btn-xs td-build-like-btn">👍</button>
-                                    <span class="td-vote-count" data-build-id="tide-offlane">10</span>
-                                </div>
-                            </div>
-                        </article>
-
-                        <!-- Witch Doctor -->
-                        <article class="td-card td-build-card" data-role="support"
-                                 data-style="teamfight" data-duration="mid" data-difficulty="easy" data-build-id="wd-support">
-                            <div class="td-build-image">
-                                <img src="images/build-wd.jpg" alt="Сборка Witch Doctor" />
-                            </div>
-                            <div class="td-build-content">
-                                <h3>Witch Doctor — саппорт с сильным ультом</h3>
-                                <p class="td-card-subtitle">Сильная линия + мощный тимфайт.</p>
-                                <div class="td-build-items-row">
-                                    <span class="td-item-pill">Boots of Speed</span>
-                                    <span class="td-item-pill">Glimmer Cape</span>
-                                    <span class="td-item-pill">Aghanim's Scepter</span>
-                                </div>
-                                <div class="td-vote-row">
-                                    <button class="td-btn td-btn-ghost td-btn-xs td-build-like-btn">👍</button>
-                                    <span class="td-vote-count" data-build-id="wd-support">6</span>
-                                </div>
-                            </div>
-                        </article>
-
-                        <!-- Clockwerk -->
-                        <article class="td-card td-build-card" data-role="support"
-                                 data-style="snowball" data-duration="short" data-difficulty="medium" data-build-id="clock-support">
-                            <div class="td-build-image">
-                                <img src="images/build-clock.jpg" alt="Сборка Clockwerk" />
-                            </div>
-                            <div class="td-build-content">
-                                <h3>Clockwerk — позиция 4</h3>
-                                <p class="td-card-subtitle">Инициация, вижен, дизрапт.</p>
-                                <div class="td-build-items-row">
-                                    <span class="td-item-pill">Tranquil Boots</span>
-                                    <span class="td-item-pill">Force Staff</span>
-                                    <span class="td-item-pill">Glimmer Cape</span>
-                                </div>
-                                <div class="td-vote-row">
-                                    <button class="td-btn td-btn-ghost td-btn-xs td-build-like-btn">👍</button>
-                                    <span class="td-vote-count" data-build-id="clock-support">4</span>
-                                </div>
-                            </div>
-                        </article>
-                    </div>
-                </div>
-            </section>
-
-            <!-- HEROES SECTION -->
-            <section id="section-heroes" class="td-section td-reveal">
-                <div class="td-section-inner">
-                    <div class="td-section-header">
-                        <h2>Топ героев 7.40c</h2>
-                    </div>
-
-                    <div class="td-heroes-grid">
-                        <article class="td-card td-hero-card" data-hero-id="slark">
-                            <div class="td-hero-card-header">
-                                <div class="td-hero-icon-wrapper">
-                                    <img src="images/heroes/slark.png" alt="Slark" onerror="this.style.display='none';" />
-                                </div>
-                                <div>
-                                    <h3>Slark</h3>
-                                    <span class="td-hero-role">Carry</span>
-                                </div>
-                            </div>
-                            <p>Сильный керри для затяжных игр, отлично наказывает одинокие цели.</p>
-                            <div class="td-tag-row">
-                                <span class="td-tag">Snowball</span>
-                                <span class="td-tag">Late game</span>
-                            </div>
-                            <div class="td-vote-row">
-                                <button class="td-btn td-btn-ghost td-btn-xs td-hero-like-btn">👍</button>
-                                <span class="td-vote-count" data-hero-id="slark">15</span>
-                                <button class="td-btn td-btn-secondary td-btn-xs td-hero-details-btn">Подробнее</button>
-                            </div>
-                        </article>
-
-                        <article class="td-card td-hero-card" data-hero-id="drow">
-                            <div class="td-hero-card-header">
-                                <div class="td-hero-icon-wrapper">
-                                    <img src="images/heroes/drow.png" alt="Drow Ranger" onerror="this.style.display='none';" />
-                                </div>
-                                <div>
-                                    <h3>Drow Ranger</h3>
-                                    <span class="td-hero-role">Carry</span>
-                                </div>
-                            </div>
-                            <p>Сильный сплит-пуш и урон по фронтлайну за счёт ауры.</p>
-                            <div class="td-tag-row">
-                                <span class="td-tag">Ranged</span>
-                                <span class="td-tag">Push</span>
-                            </div>
-                            <div class="td-vote-row">
-                                <button class="td-btn td-btn-ghost td-btn-xs td-hero-like-btn">👍</button>
-                                <span class="td-vote-count" data-hero-id="drow">11</span>
-                                <button class="td-btn td-btn-secondary td-btn-xs td-hero-details-btn">Подробнее</button>
-                            </div>
-                        </article>
-
-                        <article class="td-card td-hero-card" data-hero-id="void_spirit">
-                            <div class="td-hero-card-header">
-                                <div class="td-hero-icon-wrapper">
-                                    <img src="images/heroes/void_spirit.png" alt="Void Spirit" onerror="this.style.display='none';" />
-                                </div>
-                                <div>
-                                    <h3>Void Spirit</h3>
-                                    <span class="td-hero-role">Mid</span>
-                                </div>
-                            </div>
-                            <p>Мобильный мидер для пиков по всей карте и хайлайтов.</p>
-                            <div class="td-tag-row">
-                                <span class="td-tag">Mobile</span>
-                                <span class="td-tag">Burst</span>
-                            </div>
-                            <div class="td-vote-row">
-                                <button class="td-btn td-btn-ghost td-btn-xs td-hero-like-btn">👍</button>
-                                <span class="td-vote-count" data-hero-id="void_spirit">9</span>
-                                <button class="td-btn td-btn-secondary td-btn-xs td-hero-details-btn">Подробнее</button>
-                            </div>
-                        </article>
-
-                        <article class="td-card td-hero-card" data-hero-id="storm_spirit">
-                            <div class="td-hero-card-header">
-                                <div class="td-hero-icon-wrapper">
-                                    <img src="images/heroes/storm_spirit.png" alt="Storm Spirit" onerror="this.style.display='none';" />
-                                </div>
-                                <div>
-                                    <h3>Storm Spirit</h3>
-                                    <span class="td-hero-role">Mid</span>
-                                </div>
-                            </div>
-                            <p>Классика мида: манапул + ультимейт для бесконечных влётов.</p>
-                            <div class="td-tag-row">
-                                <span class="td-tag">Mobile</span>
-                                <span class="td-tag">Playmaker</span>
-                            </div>
-                            <div class="td-vote-row">
-                                <button class="td-btn td-btn-ghost td-btn-xs td-hero-like-btn">👍</button>
-                                <span class="td-vote-count" data-hero-id="storm_spirit">8</span>
-                                <button class="td-btn td-btn-secondary td-btn-xs td-hero-details-btn">Подробнее</button>
-                            </div>
-                        </article>
-
-                        <article class="td-card td-hero-card" data-hero-id="tidehunter">
-                            <div class="td-hero-card-header">
-                                <div class="td-hero-icon-wrapper">
-                                    <img src="images/heroes/tidehunter.png" alt="Tidehunter" onerror="this.style.display='none';" />
-                                </div>
-                                <div>
-                                    <h3>Tidehunter</h3>
-                                    <span class="td-hero-role">Offlane</span>
-                                </div>
-                            </div>
-                            <p>Жирный инициатор, вокруг которого строится весь тимфайт.</p>
-                            <div class="td-tag-row">
-                                <span class="td-tag">Teamfight</span>
-                                <span class="td-tag">Tank</span>
-                            </div>
-                            <div class="td-vote-row">
-                                <button class="td-btn td-btn-ghost td-btn-xs td-hero-like-btn">👍</button>
-                                <span class="td-vote-count" data-hero-id="tidehunter">13</span>
-                                <button class="td-btn td-btn-secondary td-btn-xs td-hero-details-btn">Подробнее</button>
-                            </div>
-                        </article>
-
-                        <article class="td-card td-hero-card" data-hero-id="witch_doctor">
-                            <div class="td-hero-card-header">
-                                <div class="td-hero-icon-wrapper">
-                                    <img src="images/heroes/witch_doctor.png" alt="Witch Doctor" onerror="this.style.display='none';" />
-                                </div>
-                                <div>
-                                    <h3>Witch Doctor</h3>
-                                    <span class="td-hero-role">Support</span>
-                                </div>
-                            </div>
-                            <p>Сильная линия и ульт, который наказывает плохое позиционирование.</p>
-                            <div class="td-tag-row">
-                                <span class="td-tag">Lane bully</span>
-                                <span class="td-tag">Teamfight</span>
-                            </div>
-                            <div class="td-vote-row">
-                                <button class="td-btn td-btn-ghost td-btn-xs td-hero-like-btn">👍</button>
-                                <span class="td-vote-count" data-hero-id="witch_doctor">10</span>
-                                <button class="td-btn td-btn-secondary td-btn-xs td-hero-details-btn">Подробнее</button>
-                            </div>
-                        </article>
-                    </div>
-                </div>
-            </section>
-
-            <!-- TIER LIST SECTION -->
-            <section id="section-tierlist" class="td-section td-reveal">
-                <div class="td-section-inner">
-                    <div class="td-section-header td-section-header--with-action">
-                        <div>
-                            <h2>Тир-лист (drag &amp; drop)</h2>
-                        </div>
-                        <button class="td-btn td-btn-secondary" id="tierResetBtn">Сбросить тир-лист</button>
-                    </div>
-
-                    <div class="td-tierlist-layout">
-                        <div class="td-tier-pool">
-                            <h3>Пул героев</h3>
-                            <p class="td-small-note">Перетаскивай героев в S/A/B/C</p>
-                            <div class="td-tier-droppable" id="tierPool" data-tier="pool">
-                                <!-- Герои подставляются из JS -->
-                            </div>
-                        </div>
-
-                        <div class="td-tier-columns">
-                            <div class="td-tier-column">
-                                <div class="td-tier-header td-tier-header--s">
-                                    <span class="td-tier-label">S</span>
-                                    <span class="td-tier-desc">Имба-пики</span>
-                                </div>
-                                <div class="td-tier-droppable" id="tierS" data-tier="S"></div>
-                            </div>
-                            <div class="td-tier-column">
-                                <div class="td-tier-header td-tier-header--a">
-                                    <span class="td-tier-label">A</span>
-                                    <span class="td-tier-desc">Очень сильные</span>
-                                </div>
-                                <div class="td-tier-droppable" id="tierA" data-tier="A"></div>
-                            </div>
-                            <div class="td-tier-column">
-                                <div class="td-tier-header td-tier-header--b">
-                                    <span class="td-tier-label">B</span>
-                                    <span class="td-tier-desc">Норм</span>
-                                </div>
-                                <div class="td-tier-droppable" id="tierB" data-tier="B"></div>
-                            </div>
-                            <div class="td-tier-column">
-                                <div class="td-tier-header td-tier-header--c">
-                                    <span class="td-tier-label">C</span>
-                                    <span class="td-tier-desc">Ситуативно</span>
-                                </div>
-                                <div class="td-tier-droppable" id="tierC" data-tier="C"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- DRAFT HELPER -->
-            <section id="section-draft" class="td-section td-reveal">
-                <div class="td-section-inner">
-                    <div class="td-section-header">
-                        <h2>Драфт-хелпер</h2>
-                        <p>Добавляй героев в свою команду и к врагам, чтобы визуально оценивать драфт.</p>
-                    </div>
-
-                    <div class="td-draft-layout">
-                        <div class="td-card td-draft-pool">
-                            <h3>Герои для драфта</h3>
-                            <p class="td-small-note">Клик по герою → выбери, куда добавить.</p>
-                            <div class="td-draft-heroes" id="draftHeroPool">
-                                <!-- Подставляется из JS (тот же пул героев, что и для тир-листа) -->
-                            </div>
-                        </div>
-
-                        <div class="td-draft-columns">
-                            <div class="td-card td-draft-column">
-                                <h3>Моя команда</h3>
-                                <div class="td-draft-slot-row" id="draftOur"></div>
-                            </div>
-                            <div class="td-card td-draft-column">
-                                <h3>Враги</h3>
-                                <div class="td-draft-slot-row" id="draftEnemy"></div>
-                            </div>
-                        </div>
-
-                        <aside class="td-card td-draft-hints">
-                            <h3>Подсказки по драфту</h3>
-                            <p class="td-small-note">Очень простой анализ, чисто для визуального понимания.</p>
-                            <ul class="td-list td-list-dense" id="draftHintsList"></ul>
-                        </aside>
-                    </div>
-                </div>
-            </section>
-
-            <!-- STREAM SECTION -->
-            <section id="section-stream" class="td-section td-reveal">
-                <div class="td-section-inner">
-                    <div class="td-section-header">
-                        <h2>Трансляция по Dota 2</h2>
-                    </div>
-
-                    <div class="td-stream-grid">
-                        <article class="td-card td-stream-card">
-                            <h3>Twitch</h3>
-                            <p class="td-small-note">
-                                <code>stariy_bog</code>
-                            </p>
-                            <div class="td-stream-frame">
-                                <iframe
-                                    src="https://player.twitch.tv/?channel=stariy_bog&parent=true-dota.bestgastore.site&autoplay=true"
-                                    frameborder="0"
-                                    allowfullscreen="true"
-                                    scrolling="no">
-                                </iframe>
-                            </div>
-                        </article>
-
-                        <article class="td-card td-stream-card">
-                            <h3>YouTube</h3>
-                            <p class="td-small-note">
-                                <code>dota2</code>
-                            </p>
-                            <div class="td-stream-frame">
-                                <iframe
-                                    src="https://www.youtube.com/embed/dnij9b-yFdw?autoplay=1&mute=1"
-                                    title="Dota 2 Stream"
-                                    frameborder="0"
-                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                    allowfullscreen>
-                                </iframe>
-                            </div>
-                        </article>
-                    </div>
-                </div>
-            </section>
-
-            <!-- DISCUSSIONS SECTION -->
-            <section id="section-discussions" class="td-section td-reveal">
-                <div class="td-section-inner">
-                    <div class="td-section-header td-section-header--with-action">
-                        <div>
-                            <h2>Обсуждения</h2>
-                            <p>Мини-форум: темы, ответы и быстрый просмотр.</p>
-                        </div>
-                            <button class="td-btn td-btn-primary" id="openNewThreadBtn">
-                                + Создать тему
-                            </button>
-                    </div>
-
-                    <div class="td-discussions-layout">
-                        <div class="td-discussions-list" id="threadsList"></div>
-                        <aside class="td-discussions-aside">
-                            <h3>Фильтр по тэгам</h3>
-                            <div class="td-tag-row td-thread-tags-filter" id="threadTagsFilter">
-                                <button class="td-chip td-chip-filter td-chip-filter--active" data-thread-tag="all">Все</button>
-                                <button class="td-chip td-chip-filter" data-thread-tag="meta">Meta</button>
-                                <button class="td-chip td-chip-filter" data-thread-tag="builds">Builds</button>
-                                <button class="td-chip td-chip-filter" data-thread-tag="heroes">Heroes</button>
-                                <button class="td-chip td-chip-filter" data-thread-tag="general">General</button>
-                            </div>
-
-                            <div class="td-card td-discussions-hint">
-                                <h4>Как писать посты</h4>
-                                <ul class="td-list td-list-dense">
-                                    <li>Указывай патч и роль.</li>
-                                    <li>Без токсичности и перехода на личности.</li>
-                                    <li>Добавляй реплеи, таймкоды, скрины билдов.</li>
-                                </ul>
-                            </div>
-
-                            <div class="td-card td-discussions-subs">
-                                <h4>Подписки</h4>
-                                <ul class="td-list td-list-dense" id="subsList">
-                                    <!-- Подписки на темы -->
-                                </ul>
-                                <p class="td-small-note"></p>
-                            </div>
-                        </aside>
-                    </div>
-                </div>
-            </section>
-
-            <!-- REGISTER SECTION -->
-            <section id="section-register" class="td-section td-reveal">
-                <div class="td-section-inner">
-                    <div class="td-section-header">
-                        <h2>Регистрация</h2>
-                        <p>Создай аккаунт, чтобы сохранять свои сборки и подписываться на темы.</p>
-                    </div>
-
-                    <div class="td-card td-register-card">
-                        <form id="registerForm" class="td-form">
-                            <div class="td-form-row">
-                                <div class="td-form-field">
-                                    <label for="nickname">Никнейм</label>
-                                    <input type="text" id="nickname" name="nickname" placeholder="Например, GigaCarry" required />
-                                </div>
-                                <div class="td-form-field">
-                                    <label for="email">Email</label>
-                                    <input type="email" id="email" name="email" placeholder="you@example.com" required />
-                                </div>
-                            </div>
-
-                            <div class="td-form-row">
-                                <div class="td-form-field">
-                                    <label for="password">Пароль</label>
-                                    <input type="password" id="password" name="password" minlength="6" required />
-                                </div>
-                                <div class="td-form-field">
-                                    <label for="rank">Примерный ранг</label>
-                                    <select id="rank" name="rank">
-                                        <option value="">Не указывать</option>
-                                        <option value="herald">Herald / Guardian</option>
-                                        <option value="crusader">Crusader / Archon</option>
-                                        <option value="legend">Legend / Ancient</option>
-                                        <option value="divine">Divine / Immortal</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div class="td-form-row">
-                                <div class="td-form-field">
-                                    <label>Любимая роль</label>
-                                    <div class="td-checkbox-row">
-                                        <label><input type="radio" name="role" value="carry" /> Carry</label>
-                                        <label><input type="radio" name="role" value="mid" /> Mid</label>
-                                        <label><input type="radio" name="role" value="offlane" /> Offlane</label>
-                                        <label><input type="radio" name="role" value="support" /> Support</label>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="td-form-row">
-                                <div class="td-form-field td-form-field--full">
-                                    <label for="about">Пару слов о себе</label>
-                                    <textarea id="about" name="about" rows="3" placeholder="Любимые герои, стиль игры, что хочешь обсуждать..."></textarea>
-                                </div>
-                            </div>
-
-                            <div class="td-form-row td-form-row--between">
-                                <label class="td-checkbox-inline">
-                                    <input type="checkbox" id="agree" required />
-                                    Я соглашаюсь с правилами.
-                                </label>
-                                <button type="submit" class="td-btn td-btn-primary">Создать аккаунт</button>
-                            </div>
-
-                            <div class="td-form-status" id="registerStatus"></div>
-                        </form>
-                    </div>
-                </div>
-            </section>
-
-            <!-- PROFILE SECTION -->
-            <section id="section-profile" class="td-section td-reveal">
-                <div class="td-section-inner">
-                    <div class="td-section-header">
-                        <h2>Профиль игрока</h2>
-                    </div>
-
-                    <div class="td-card td-profile-card">
-                        <div class="td-profile-main">
-                            <div class="td-user-avatar td-user-avatar-lg" id="profileAvatar">?</div>
-                            <div>
-                                <h3 id="profileNickname">Гость</h3>
-                                <p class="td-small-note" id="profileEmail">Email не указан</p>
-                            </div>
-                        </div>
-                        <div class="td-profile-grid">
-                            <div>
-                                <p class="td-profile-label">Ранг</p>
-                                <p class="td-profile-value" id="profileRank">Не указан</p>
-                            </div>
-                            <div>
-                                <p class="td-profile-label">Любимая роль</p>
-                                <p class="td-profile-value" id="profileRole">Не выбрана</p>
-                            </div>
-                            <div class="td-profile-about">
-                                <p class="td-profile-label">О себе</p>
-                                <p class="td-profile-value" id="profileAbout">Пока ничего не рассказано.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- ABOUT SECTION -->
-            <section id="section-about" class="td-section td-section--about td-reveal">
-                <div class="td-section-inner">
-                    <div class="td-section-header">
-                        <h2>О проекте True Dota</h2>
-                    </div>
-                    <div class="td-about-grid">
-                        <div>
-                            <p>
-                                True Dota — концепт сайта-путеводителя по <strong>мете, сборкам и обсуждениям</strong>.
-                                Здесь нет обучения базовой механике, только актуальный взгляд на игру.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </section>
-        </main>
+  <!-- SIDEBAR -->
+  <aside class="td-sidebar">
+    <div class="td-logo">
+      <div class="td-logo-icon">TD</div>
+      <div class="td-logo-text">
+        <span class="td-logo-title">True Dota</span>
+        <span class="td-logo-subtitle">meta & community</span>
+      </div>
     </div>
+
+    <nav class="td-sidebar-nav">
+      <span class="td-nav-label">Навигация</span>
+      <a href="#section-home" class="td-nav-link td-nav-link--active">🏠 Главная</a>
+      <a href="#section-meta" class="td-nav-link">📊 Мета 7.40c</a>
+      <a href="#section-patches" class="td-nav-link">📜 История патчей</a>
+      <a href="#section-builds" class="td-nav-link">🛡️ Сборки</a>
+      <a href="#section-heroes" class="td-nav-link">🧙‍♂️ Топ героев</a>
+      <a href="#section-tierlist" class="td-nav-link">🏅 Тир-лист</a>
+      <a href="#section-draft" class="td-nav-link">🎯 Драфт-хелпер</a>
+      <a href="#section-stream" class="td-nav-link">📺 Трансляция</a>
+      <a href="#section-discussions" class="td-nav-link">💬 Обсуждения</a>
+      <a href="#section-profile" class="td-nav-link">👤 Профиль</a>
+      <a href="#section-about" class="td-nav-link">ℹ️ О проекте</a>
+
+      <button class="td-btn td-btn-secondary" id="logoutBtn" type="button">Выйти</button>
+    </nav>
+
+    <div class="td-sidebar-meta">
+      <div class="td-sidebar-block">
+        <p class="td-sidebar-title">Текущий патч</p>
+        <p class="td-sidebar-value">7.40c</p>
+        <p class="td-sidebar-note">Баланс после Largo</p>
+      </div>
+      <div class="td-sidebar-block">
+        <p class="td-sidebar-title">Мета по ролям</p>
+        <p class="td-sidebar-tag">Slark / Drow / Spectre</p>
+        <p class="td-sidebar-tag">Void / Storm / Huskar</p>
+      </div>
+    </div>
+
+    <div class="td-sidebar-footer">
+      <div class="td-user-compact">
+        <div class="td-user-avatar td-user-avatar--image" id="sidebarAvatar">
+          <img id="sidebarAvatarImg" alt="Avatar" />
+          <span id="sidebarAvatarFallback">?</span>
+        </div>
+        <div class="td-user-info">
+          <span class="td-user-name" id="sidebarUserName">Гость</span>
+          <span class="td-user-status" id="sidebarUserStatus">Не авторизован</span>
+        </div>
+      </div>
+
+      <!-- лучше ссылкой, чтобы всегда работало -->
+      <a class="td-btn td-btn-secondary" id="openRegisterFromSidebar" href="auth.html">
+        Войти / Зарегистрироваться
+      </a>
+    </div>
+  </aside>
+
+  <!-- MAIN COLUMN -->
+  <div class="td-main-wrapper">
+    <!-- TOPBAR -->
+    <header class="td-topbar">
+      <div class="td-topbar-left">
+        <button class="td-mobile-menu-btn" id="mobileMenuToggle" aria-label="Меню" type="button">
+          ☰
+        </button>
+        <div>
+          <h1 class="td-topbar-title">True Dota</h1>
+          <span class="td-topbar-subtitle">Путеводитель по мете и обсуждениям (7.40c)</span>
+        </div>
+      </div>
+
+      <div class="td-topbar-right">
+        <div class="td-search">
+          <input id="globalSearchInput" type="search" placeholder="Поиск по героям, сборкам, темам..." />
+        </div>
+
+        <!-- ✅ добавили кнопку, которую ждёт setupThemeToggle() -->
+        
+      </div>
+    </header>
+
+    <main class="td-main">
+      <!-- HERO / HOME -->
+      <section id="section-home" class="td-section td-reveal">
+        <div class="td-section-inner">
+          <div class="td-hero-block">
+            <h2>Добро пожаловать в <span class="accent">True Dota</span></h2>
+            <p class="td-hero-text">
+              Не гайды по ластхиту, а <strong>срез по мете 7.40c</strong>: какие герои сейчас сильные,
+              какие сборки крутят паб, что обсуждает комьюнити. Всё в одном месте.
+            </p>
+            <div class="td-hero-actions">
+              <a href="#section-meta" class="td-btn td-btn-primary">Смотреть мету</a>
+              <a href="#section-discussions" class="td-btn td-btn-secondary">В обсуждения</a>
+            </div>
+            <div class="td-hero-stats">
+              <div>
+                <span class="td-hero-stats-label">Тем</span>
+                <span class="td-hero-stats-value" id="statThreadsCount">0</span>
+              </div>
+              <div>
+                <span class="td-hero-stats-label">Сборок</span>
+                <span class="td-hero-stats-value" id="statBuildsCount">0</span>
+              </div>
+              <div>
+                <span class="td-hero-stats-label">Героев в топе</span>
+                <span class="td-hero-stats-value" id="statHeroesCount">0</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="td-hero-subgrid">
+            <article class="td-card td-hero-meta-card">
+              <p class="td-chip">Мета 7.40c</p>
+              <h3>Сильные тренды</h3>
+              <ul class="td-list">
+                <li>🐍 Керри, которые живут в лейте: Slark, Drow, Spectre.</li>
+                <li>🔮 Мобильные мидеры: Void Spirit, Storm Spirit, Huskar.</li>
+                <li>🛡️ Жирные оффлейнеры с инициацией: Tidehunter, Axe, Legion.</li>
+                <li>⚙️ Саппорты с сильным контролем: Witch Doctor, Clockwerk, Lich.</li>
+              </ul>
+            </article>
+
+            <!-- Герой дня -->
+            <article class="td-card td-hero-of-day" id="heroOfDayCard">
+              <p class="td-chip td-chip-alt">Герой дня</p>
+              <div class="td-hero-of-day-header">
+                <div class="td-hero-of-day-main">
+                  <div class="td-hero-icon-wrapper">
+                    <img id="heroOfDayIcon" src="" alt="Иконка героя дня" />
+                  </div>
+                  <div>
+                    <h3 id="heroOfDayName"></h3>
+                    <p class="td-hero-role" id="heroOfDayRoles"></p>
+                  </div>
+                </div>
+                <button class="td-btn td-btn-secondary td-btn-sm" id="heroOfDayMoreBtn" type="button">
+                  Подробнее
+                </button>
+              </div>
+              <p class="td-small-note" id="heroOfDayDesc"></p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- META SECTION -->
+      <section id="section-meta" class="td-section td-reveal">
+        <div class="td-section-inner">
+          <div class="td-section-header">
+            <h2>Мета 7.40c по ролям</h2>
+            <p>Краткий обзор сильных героев на текущем патче (примерный список под фронтенд).</p>
+          </div>
+
+          <div class="td-meta-grid">
+            <article class="td-card td-meta-card">
+              <h3>Carry (позиция 1)</h3>
+              <p class="td-card-subtitle">Главные «машины по убийству» в 7.40c.</p>
+              <div class="td-meta-image">
+                <img src="images/meta-carry.jpg" alt="Мета керри" />
+              </div>
+              <div class="td-tag-row">
+                <span class="td-tag">Slark</span>
+                <span class="td-tag">Drow Ranger</span>
+                <span class="td-tag">Spectre</span>
+              </div>
+              <ul class="td-list td-list-dense">
+                <li>Сильные в затяжных играх и хороши против жирных фронтлайнов.</li>
+                <li>Игра строится вокруг их таймингов 2–3 артефактов.</li>
+              </ul>
+            </article>
+
+            <article class="td-card td-meta-card">
+              <h3>Mid (позиция 2)</h3>
+              <p class="td-card-subtitle">Герои, которые задают темп карты.</p>
+              <div class="td-meta-image">
+                <img src="images/meta-mid.jpg" alt="Мета мид" />
+              </div>
+              <div class="td-tag-row">
+                <span class="td-tag">Void Spirit</span>
+                <span class="td-tag">Storm Spirit</span>
+                <span class="td-tag">Huskar</span>
+              </div>
+              <ul class="td-list td-list-dense">
+                <li>Ранние ротации, давление на боковые линии.</li>
+                <li>Сильный burst и высокая мобильность.</li>
+              </ul>
+            </article>
+
+            <article class="td-card td-meta-card">
+              <h3>Offlane (позиция 3)</h3>
+              <p class="td-card-subtitle">Толстые инициаторы для 5х5 драк.</p>
+              <div class="td-meta-image">
+                <img src="images/meta-offlane.jpg" alt="Мета оффлейн" />
+              </div>
+              <div class="td-tag-row">
+                <span class="td-tag">Tidehunter</span>
+                <span class="td-tag">Axe</span>
+                <span class="td-tag">Legion Commander</span>
+              </div>
+              <ul class="td-list td-list-dense">
+                <li>Дают контроль в ключевые моменты файта.</li>
+                <li>Собирают ауры и тимфайт артефакты.</li>
+              </ul>
+            </article>
+
+            <article class="td-card td-meta-card">
+              <h3>Supports (4/5)</h3>
+              <p class="td-card-subtitle">Контроль, вижен, сейв.</p>
+              <div class="td-meta-image">
+                <img src="images/meta-support.jpg" alt="Мета саппорты" />
+              </div>
+              <div class="td-tag-row">
+                <span class="td-tag">Witch Doctor</span>
+                <span class="td-tag">Clockwerk</span>
+                <span class="td-tag">Lich</span>
+              </div>
+              <ul class="td-list td-list-dense">
+                <li>Жёсткий контроль и сильные ультимейты.</li>
+                <li>Сильная фаза лайна и полезные скиллы до лейта.</li>
+              </ul>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- PATCH HISTORY -->
+      <section id="section-patches" class="td-section td-reveal">
+        <div class="td-section-inner">
+          <div class="td-section-header">
+            <h2>История патчей</h2>
+          </div>
+
+          <div class="td-patch-timeline" id="patchTimeline"></div>
+        </div>
+      </section>
+
+      <!-- BUILDS SECTION -->
+      <section id="section-builds" class="td-section td-reveal">
+        <div class="td-section-inner">
+          <div class="td-section-header">
+            <h2>Сборки по героям</h2>
+          </div>
+
+          <div class="td-builds-filter">
+            <div class="td-builds-filter-row">
+              <div class="td-builds-filter-group">
+                <span class="td-filter-label">Роль</span>
+                <button class="td-chip td-chip-filter td-chip-filter--active" data-role="all" type="button">Все</button>
+                <button class="td-chip td-chip-filter" data-role="carry" type="button">Carry</button>
+                <button class="td-chip td-chip-filter" data-role="mid" type="button">Mid</button>
+                <button class="td-chip td-chip-filter" data-role="offlane" type="button">Offlane</button>
+                <button class="td-chip td-chip-filter" data-role="support" type="button">Support</button>
+              </div>
+
+              <div class="td-builds-filter-group td-builds-filter-selects">
+                <label>
+                  Стиль
+                  <select id="buildStyleFilter">
+                    <option value="all">Любой</option>
+                    <option value="snowball">Snowball</option>
+                    <option value="late">Late-game</option>
+                    <option value="push">Push</option>
+                    <option value="teamfight">Teamfight</option>
+                  </select>
+                </label>
+                <label>
+                  Длительность
+                  <select id="buildDurationFilter">
+                    <option value="all">Любая</option>
+                    <option value="short">&lt; 30</option>
+                    <option value="mid">30–45</option>
+                    <option value="long">&gt; 45</option>
+                  </select>
+                </label>
+                <label>
+                  Сложность
+                  <select id="buildDifficultyFilter">
+                    <option value="all">Любая</option>
+                    <option value="easy">Лёгкая</option>
+                    <option value="medium">Средняя</option>
+                    <option value="hard">Сложная</option>
+                  </select>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="td-builds-grid" id="buildsGrid">
+            <!-- Slark -->
+            <article class="td-card td-build-card" data-role="carry"
+              data-style="snowball" data-duration="mid" data-difficulty="medium" data-build-id="slark-carry">
+              <div class="td-build-image">
+                <img src="images/build-slark.jpg" alt="Сборка Slark" />
+              </div>
+              <div class="td-build-content">
+                <h3>Slark — керри в агрессивном темпе</h3>
+                <p class="td-card-subtitle">Быстрые драки, постоянный сноубол.</p>
+                <div class="td-build-items-row">
+                  <span class="td-item-pill">Power Treads</span>
+                  <span class="td-item-pill">Echo Sabre</span>
+                  <span class="td-item-pill">Aghanim's Scepter</span>
+                  <span class="td-item-pill">Black King Bar</span>
+                  <span class="td-item-pill">Skadi</span>
+                </div>
+                <div class="td-vote-row">
+                  <button class="td-btn td-btn-ghost td-btn-xs td-build-like-btn" type="button">👍</button>
+                  <span class="td-vote-count" data-build-id="slark-carry">12</span>
+                </div>
+              </div>
+            </article>
+
+            <!-- Drow -->
+            <article class="td-card td-build-card" data-role="carry"
+              data-style="late" data-duration="long" data-difficulty="medium" data-build-id="drow-carry">
+              <div class="td-build-image">
+                <img src="images/build-drow.jpg" alt="Сборка Drow Ranger" />
+              </div>
+              <div class="td-build-content">
+                <h3>Drow Ranger — дальний керри</h3>
+                <p class="td-card-subtitle">Фокус по фронтлайну и вышкам.</p>
+                <div class="td-build-items-row">
+                  <span class="td-item-pill">Power Treads</span>
+                  <span class="td-item-pill">Hurricane Pike</span>
+                  <span class="td-item-pill">Manta Style</span>
+                  <span class="td-item-pill">Silver Edge</span>
+                  <span class="td-item-pill">Skadi</span>
+                </div>
+                <div class="td-vote-row">
+                  <button class="td-btn td-btn-ghost td-btn-xs td-build-like-btn" type="button">👍</button>
+                  <span class="td-vote-count" data-build-id="drow-carry">9</span>
+                </div>
+              </div>
+            </article>
+
+            <!-- Void Spirit -->
+            <article class="td-card td-build-card" data-role="mid"
+              data-style="snowball" data-duration="short" data-difficulty="hard" data-build-id="void-mid">
+              <div class="td-build-image">
+                <img src="images/build-void.jpg" alt="Сборка Void Spirit" />
+              </div>
+              <div class="td-build-content">
+                <h3>Void Spirit — мобильный мидер</h3>
+                <p class="td-card-subtitle">Идеален для пиков и быстрых убийств.</p>
+                <div class="td-build-items-row">
+                  <span class="td-item-pill">Bottle</span>
+                  <span class="td-item-pill">Power Treads</span>
+                  <span class="td-item-pill">Echo Sabre</span>
+                  <span class="td-item-pill">Kaya &amp; Sange</span>
+                  <span class="td-item-pill">Black King Bar</span>
+                </div>
+                <div class="td-vote-row">
+                  <button class="td-btn td-btn-ghost td-btn-xs td-build-like-btn" type="button">👍</button>
+                  <span class="td-vote-count" data-build-id="void-mid">7</span>
+                </div>
+              </div>
+            </article>
+
+            <!-- Tidehunter -->
+            <article class="td-card td-build-card" data-role="offlane"
+              data-style="teamfight" data-duration="mid" data-difficulty="medium" data-build-id="tide-offlane">
+              <div class="td-build-image">
+                <img src="images/build-tide.jpg" alt="Сборка Tidehunter" />
+              </div>
+              <div class="td-build-content">
+                <h3>Tidehunter — классический оффлейн</h3>
+                <p class="td-card-subtitle">Рэвидж решает файты.</p>
+                <div class="td-build-items-row">
+                  <span class="td-item-pill">Vanguard</span>
+                  <span class="td-item-pill">Blink Dagger</span>
+                  <span class="td-item-pill">Pipe</span>
+                  <span class="td-item-pill">Shiva's Guard</span>
+                </div>
+                <div class="td-vote-row">
+                  <button class="td-btn td-btn-ghost td-btn-xs td-build-like-btn" type="button">👍</button>
+                  <span class="td-vote-count" data-build-id="tide-offlane">10</span>
+                </div>
+              </div>
+            </article>
+
+            <!-- Witch Doctor -->
+            <article class="td-card td-build-card" data-role="support"
+              data-style="teamfight" data-duration="mid" data-difficulty="easy" data-build-id="wd-support">
+              <div class="td-build-image">
+                <img src="images/build-wd.jpg" alt="Сборка Witch Doctor" />
+              </div>
+              <div class="td-build-content">
+                <h3>Witch Doctor — саппорт с сильным ультом</h3>
+                <p class="td-card-subtitle">Сильная линия + мощный тимфайт.</p>
+                <div class="td-build-items-row">
+                  <span class="td-item-pill">Boots of Speed</span>
+                  <span class="td-item-pill">Glimmer Cape</span>
+                  <span class="td-item-pill">Aghanim's Scepter</span>
+                </div>
+                <div class="td-vote-row">
+                  <button class="td-btn td-btn-ghost td-btn-xs td-build-like-btn" type="button">👍</button>
+                  <span class="td-vote-count" data-build-id="wd-support">6</span>
+                </div>
+              </div>
+            </article>
+
+            <!-- Clockwerk -->
+            <article class="td-card td-build-card" data-role="support"
+              data-style="snowball" data-duration="short" data-difficulty="medium" data-build-id="clock-support">
+              <div class="td-build-image">
+                <img src="images/build-clock.jpg" alt="Сборка Clockwerk" />
+              </div>
+              <div class="td-build-content">
+                <h3>Clockwerk — позиция 4</h3>
+                <p class="td-card-subtitle">Инициация, вижен, дизрапт.</p>
+                <div class="td-build-items-row">
+                  <span class="td-item-pill">Tranquil Boots</span>
+                  <span class="td-item-pill">Force Staff</span>
+                  <span class="td-item-pill">Glimmer Cape</span>
+                </div>
+                <div class="td-vote-row">
+                  <button class="td-btn td-btn-ghost td-btn-xs td-build-like-btn" type="button">👍</button>
+                  <span class="td-vote-count" data-build-id="clock-support">4</span>
+                </div>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- HEROES SECTION -->
+      <section id="section-heroes" class="td-section td-reveal">
+        <div class="td-section-inner">
+          <div class="td-section-header">
+            <h2>Топ героев 7.40c</h2>
+          </div>
+
+          <div class="td-heroes-grid">
+            <article class="td-card td-hero-card" data-hero-id="slark">
+              <div class="td-hero-card-header">
+                <div class="td-hero-icon-wrapper">
+                  <img src="images/heroes/slark.png" alt="Slark" onerror="this.style.display='none';" />
+                </div>
+                <div>
+                  <h3>Slark</h3>
+                  <span class="td-hero-role">Carry</span>
+                </div>
+              </div>
+              <p>Сильный керри для затяжных игр, отлично наказывает одинокие цели.</p>
+              <div class="td-tag-row">
+                <span class="td-tag">Snowball</span>
+                <span class="td-tag">Late game</span>
+              </div>
+              <div class="td-vote-row">
+                <button class="td-btn td-btn-ghost td-btn-xs td-hero-like-btn" type="button">👍</button>
+                <span class="td-vote-count" data-hero-id="slark">15</span>
+                <button class="td-btn td-btn-secondary td-btn-xs td-hero-details-btn" type="button">Подробнее</button>
+              </div>
+            </article>
+
+            <article class="td-card td-hero-card" data-hero-id="drow">
+              <div class="td-hero-card-header">
+                <div class="td-hero-icon-wrapper">
+                  <img src="images/heroes/drow.png" alt="Drow Ranger" onerror="this.style.display='none';" />
+                </div>
+                <div>
+                  <h3>Drow Ranger</h3>
+                  <span class="td-hero-role">Carry</span>
+                </div>
+              </div>
+              <p>Сильный сплит-пуш и урон по фронтлайну за счёт ауры.</p>
+              <div class="td-tag-row">
+                <span class="td-tag">Ranged</span>
+                <span class="td-tag">Push</span>
+              </div>
+              <div class="td-vote-row">
+                <button class="td-btn td-btn-ghost td-btn-xs td-hero-like-btn" type="button">👍</button>
+                <span class="td-vote-count" data-hero-id="drow">11</span>
+                <button class="td-btn td-btn-secondary td-btn-xs td-hero-details-btn" type="button">Подробнее</button>
+              </div>
+            </article>
+
+            <article class="td-card td-hero-card" data-hero-id="void_spirit">
+              <div class="td-hero-card-header">
+                <div class="td-hero-icon-wrapper">
+                  <img src="images/heroes/void_spirit.png" alt="Void Spirit" onerror="this.style.display='none';" />
+                </div>
+                <div>
+                  <h3>Void Spirit</h3>
+                  <span class="td-hero-role">Mid</span>
+                </div>
+              </div>
+              <p>Мобильный мидер для пиков по всей карте и хайлайтов.</p>
+              <div class="td-tag-row">
+                <span class="td-tag">Mobile</span>
+                <span class="td-tag">Burst</span>
+              </div>
+              <div class="td-vote-row">
+                <button class="td-btn td-btn-ghost td-btn-xs td-hero-like-btn" type="button">👍</button>
+                <span class="td-vote-count" data-hero-id="void_spirit">9</span>
+                <button class="td-btn td-btn-secondary td-btn-xs td-hero-details-btn" type="button">Подробнее</button>
+              </div>
+            </article>
+
+            <article class="td-card td-hero-card" data-hero-id="storm_spirit">
+              <div class="td-hero-card-header">
+                <div class="td-hero-icon-wrapper">
+                  <img src="images/heroes/storm_spirit.png" alt="Storm Spirit" onerror="this.style.display='none';" />
+                </div>
+                <div>
+                  <h3>Storm Spirit</h3>
+                  <span class="td-hero-role">Mid</span>
+                </div>
+              </div>
+              <p>Классика мида: манапул + ультимейт для бесконечных влётов.</p>
+              <div class="td-tag-row">
+                <span class="td-tag">Mobile</span>
+                <span class="td-tag">Playmaker</span>
+              </div>
+              <div class="td-vote-row">
+                <button class="td-btn td-btn-ghost td-btn-xs td-hero-like-btn" type="button">👍</button>
+                <span class="td-vote-count" data-hero-id="storm_spirit">8</span>
+                <button class="td-btn td-btn-secondary td-btn-xs td-hero-details-btn" type="button">Подробнее</button>
+              </div>
+            </article>
+
+            <article class="td-card td-hero-card" data-hero-id="tidehunter">
+              <div class="td-hero-card-header">
+                <div class="td-hero-icon-wrapper">
+                  <img src="images/heroes/tidehunter.png" alt="Tidehunter" onerror="this.style.display='none';" />
+                </div>
+                <div>
+                  <h3>Tidehunter</h3>
+                  <span class="td-hero-role">Offlane</span>
+                </div>
+              </div>
+              <p>Жирный инициатор, вокруг которого строится весь тимфайт.</p>
+              <div class="td-tag-row">
+                <span class="td-tag">Teamfight</span>
+                <span class="td-tag">Tank</span>
+              </div>
+              <div class="td-vote-row">
+                <button class="td-btn td-btn-ghost td-btn-xs td-hero-like-btn" type="button">👍</button>
+                <span class="td-vote-count" data-hero-id="tidehunter">13</span>
+                <button class="td-btn td-btn-secondary td-btn-xs td-hero-details-btn" type="button">Подробнее</button>
+              </div>
+            </article>
+
+            <article class="td-card td-hero-card" data-hero-id="witch_doctor">
+              <div class="td-hero-card-header">
+                <div class="td-hero-icon-wrapper">
+                  <img src="images/heroes/witch_doctor.png" alt="Witch Doctor" onerror="this.style.display='none';" />
+                </div>
+                <div>
+                  <h3>Witch Doctor</h3>
+                  <span class="td-hero-role">Support</span>
+                </div>
+              </div>
+              <p>Сильная линия и ульт, который наказывает плохое позиционирование.</p>
+              <div class="td-tag-row">
+                <span class="td-tag">Lane bully</span>
+                <span class="td-tag">Teamfight</span>
+              </div>
+              <div class="td-vote-row">
+                <button class="td-btn td-btn-ghost td-btn-xs td-hero-like-btn" type="button">👍</button>
+                <span class="td-vote-count" data-hero-id="witch_doctor">10</span>
+                <button class="td-btn td-btn-secondary td-btn-xs td-hero-details-btn" type="button">Подробнее</button>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- TIER LIST SECTION -->
+      <section id="section-tierlist" class="td-section td-reveal">
+        <div class="td-section-inner">
+          <div class="td-section-header td-section-header--with-action">
+            <div>
+              <h2>Тир-лист (drag &amp; drop)</h2>
+            </div>
+            <button class="td-btn td-btn-secondary" id="tierResetBtn" type="button">Сбросить тир-лист</button>
+          </div>
+
+          <div class="td-tierlist-layout">
+            <div class="td-tier-pool">
+              <h3>Пул героев</h3>
+              <p class="td-small-note">Перетаскивай героев в S/A/B/C</p>
+              <div class="td-tier-droppable" id="tierPool" data-tier="pool"></div>
+            </div>
+
+            <div class="td-tier-columns">
+              <div class="td-tier-column">
+                <div class="td-tier-header td-tier-header--s">
+                  <span class="td-tier-label">S</span>
+                  <span class="td-tier-desc">Имба-пики</span>
+                </div>
+                <div class="td-tier-droppable" id="tierS" data-tier="S"></div>
+              </div>
+              <div class="td-tier-column">
+                <div class="td-tier-header td-tier-header--a">
+                  <span class="td-tier-label">A</span>
+                  <span class="td-tier-desc">Очень сильные</span>
+                </div>
+                <div class="td-tier-droppable" id="tierA" data-tier="A"></div>
+              </div>
+              <div class="td-tier-column">
+                <div class="td-tier-header td-tier-header--b">
+                  <span class="td-tier-label">B</span>
+                  <span class="td-tier-desc">Норм</span>
+                </div>
+                <div class="td-tier-droppable" id="tierB" data-tier="B"></div>
+              </div>
+              <div class="td-tier-column">
+                <div class="td-tier-header td-tier-header--c">
+                  <span class="td-tier-label">C</span>
+                  <span class="td-tier-desc">Ситуативно</span>
+                </div>
+                <div class="td-tier-droppable" id="tierC" data-tier="C"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- DRAFT HELPER -->
+      <section id="section-draft" class="td-section td-reveal">
+        <div class="td-section-inner">
+          <div class="td-section-header">
+            <h2>Драфт-хелпер</h2>
+            <p>Добавляй героев в свою команду и к врагам, чтобы визуально оценивать драфт.</p>
+          </div>
+
+          <div class="td-draft-layout">
+            <div class="td-card td-draft-pool">
+              <h3>Герои для драфта</h3>
+              <p class="td-small-note">Клик по герою → выбери, куда добавить.</p>
+              <div class="td-draft-heroes" id="draftHeroPool"></div>
+            </div>
+
+            <div class="td-draft-columns">
+              <div class="td-card td-draft-column">
+                <h3>Моя команда</h3>
+                <div class="td-draft-slot-row" id="draftOur"></div>
+              </div>
+              <div class="td-card td-draft-column">
+                <h3>Враги</h3>
+                <div class="td-draft-slot-row" id="draftEnemy"></div>
+              </div>
+            </div>
+
+            <aside class="td-card td-draft-hints">
+              <h3>Подсказки по драфту</h3>
+              <p class="td-small-note">Очень простой анализ, чисто для визуального понимания.</p>
+              <ul class="td-list td-list-dense" id="draftHintsList"></ul>
+            </aside>
+          </div>
+        </div>
+      </section>
+
+      <!-- STREAM SECTION -->
+      <section id="section-stream" class="td-section td-reveal">
+        <div class="td-section-inner">
+          <div class="td-section-header">
+            <h2>Трансляция по Dota 2</h2>
+          </div>
+
+          <div class="td-stream-grid">
+            <article class="td-card td-stream-card">
+              <h3>Twitch</h3>
+              <p class="td-small-note"><code>stariy_bog</code></p>
+
+              <div class="td-stream-frame">
+                <iframe
+                  src="https://player.twitch.tv/?channel=stariy_bog&parent=true-dota.bestgastore.site&parent=localhost&parent=127.0.0.1&autoplay=true"
+                  frameborder="0"
+                  allowfullscreen="true"
+                  scrolling="no">
+                </iframe>
+              </div>
+            </article>
+
+            <article class="td-card td-stream-card">
+              <h3>YouTube</h3>
+              <p class="td-small-note"><code>dota2</code></p>
+              <div class="td-stream-frame">
+                <iframe
+                  src="https://www.youtube.com/embed/dnij9b-yFdw?autoplay=1&mute=1"
+                  title="Dota 2 Stream"
+                  frameborder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowfullscreen>
+                </iframe>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- DISCUSSIONS SECTION -->
+      <section id="section-discussions" class="td-section td-reveal">
+        <div class="td-section-inner">
+          <div class="td-section-header td-section-header--with-action">
+            <div>
+              <h2>Обсуждения</h2>
+              <p>Мини-форум: темы, ответы и быстрый просмотр.</p>
+            </div>
+            <button class="td-btn td-btn-primary" id="openNewThreadBtn" type="button">+ Создать тему</button>
+          </div>
+
+          <div class="td-discussions-layout">
+            <div class="td-discussions-list" id="threadsList"></div>
+
+            <aside class="td-discussions-aside">
+              <h3>Фильтр по тэгам</h3>
+              <div class="td-tag-row td-thread-tags-filter" id="threadTagsFilter">
+                <button class="td-chip td-chip-filter td-chip-filter--active" data-thread-tag="all" type="button">Все</button>
+                <button class="td-chip td-chip-filter" data-thread-tag="meta" type="button">Meta</button>
+                <button class="td-chip td-chip-filter" data-thread-tag="builds" type="button">Builds</button>
+                <button class="td-chip td-chip-filter" data-thread-tag="heroes" type="button">Heroes</button>
+                <button class="td-chip td-chip-filter" data-thread-tag="general" type="button">General</button>
+              </div>
+
+              <div class="td-card td-discussions-hint">
+                <h4>Как писать посты</h4>
+                <ul class="td-list td-list-dense">
+                  <li>Указывай патч и роль.</li>
+                  <li>Без токсичности и перехода на личности.</li>
+                  <li>Добавляй реплеи, таймкоды, скрины билдов.</li>
+                </ul>
+              </div>
+
+              <div class="td-card td-discussions-subs">
+                <h4>Подписки</h4>
+                <ul class="td-list td-list-dense" id="subsList"></ul>
+                <p class="td-small-note"></p>
+              </div>
+            </aside>
+          </div>
+        </div>
+      </section>
+
+      <!-- PROFILE SECTION -->
+      <section id="section-profile" class="td-section td-reveal">
+        <div class="td-section-inner">
+          <div class="td-section-header">
+            <h2>Профиль игрока</h2>
+          </div>
+
+          <div class="td-card td-profile-card">
+            <div class="td-profile-main">
+
+            <div class="td-user-avatar td-user-avatar-lg" id="profileAvatar">
+                <img id="profileAvatarImg" alt="Avatar" />
+                <span id="profileAvatarFallback">?</span>
+            </div>
+
+            <div class="td-form" style="margin-top:12px;">
+                <div class="td-form-field td-form-field--full">
+                    <label>Аватарка (png/jpg, до 2MB)</label>
+                    <input type="file" id="avatarUpload" accept="image/png,image/jpeg,image/webp" />
+                </div>
+            </div>
+
+            <div>
+                <h3 id="profileNickname">Гость</h3>
+                <p class="td-small-note" id="profileEmail">Email не указан</p>
+            </div>
+
+            </div>
+
+            <div class="td-form" style="margin-top:12px;">
+              <div class="td-form-field td-form-field--full">
+                <label>Аватарка (png/jpg/webp, до 2MB)</label>
+                <input type="file" id="avatarUpload" accept="image/png,image/jpeg,image/webp" />
+                
+              </div>
+            </div>
+
+            <div class="td-profile-grid">
+              <div>
+                <p class="td-profile-label">Ранг</p>
+                <p class="td-profile-value" id="profileRank">Не указан</p>
+              </div>
+              <div>
+                <p class="td-profile-label">Любимая роль</p>
+                <p class="td-profile-value" id="profileRole">Не выбрана</p>
+              </div>
+              <div class="td-profile-about">
+                <p class="td-profile-label">О себе</p>
+                <p class="td-profile-value" id="profileAbout">Пока ничего не рассказано.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ABOUT SECTION -->
+      <section id="section-about" class="td-section td-section--about td-reveal">
+        <div class="td-section-inner">
+          <div class="td-section-header">
+            <h2>О проекте True Dota</h2>
+          </div>
+          <div class="td-about-grid">
+            <div>
+              <p>
+                True Dota — концепт сайта-путеводителя по <strong>мете, сборкам и обсуждениям</strong>.
+                Здесь нет обучения базовой механике, только актуальный взгляд на игру.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
 </div>
 
 <!-- MODAL: NEW THREAD -->
 <div class="td-modal-backdrop" id="newThreadModal">
-    <div class="td-modal">
-        <div class="td-modal-header">
-            <h3>Создать тему</h3>
-            <button class="td-modal-close" id="closeNewThreadModal">×</button>
-        </div>
-        <form id="newThreadForm" class="td-form td-modal-form">
-            <div class="td-form-field">
-                <label for="threadTitle">Заголовок</label>
-                <input type="text" id="threadTitle" required placeholder="Например: Стоит ли пикать Slark первым?" />
-            </div>
-            <div class="td-form-field">
-                <label for="threadTag">Тэг</label>
-                <select id="threadTag" required>
-                    <option value="meta">Meta</option>
-                    <option value="builds">Builds</option>
-                    <option value="heroes">Heroes</option>
-                    <option value="general">General</option>
-                </select>
-            </div>
-            <div class="td-form-field">
-                <label for="threadText">Текст</label>
-                <textarea id="threadText" rows="4" required placeholder="Опиши, что хочешь обсудить..."></textarea>
-            </div>
-            <div class="td-form-row td-form-row--between">
-                <button type="submit" class="td-btn td-btn-primary">Опубликовать</button>
-            </div>
-        </form>
+  <div class="td-modal">
+    <div class="td-modal-header">
+      <h3>Создать тему</h3>
+      <button class="td-modal-close" id="closeNewThreadModal" type="button">×</button>
     </div>
+    <form id="newThreadForm" class="td-form td-modal-form">
+      <div class="td-form-field">
+        <label for="threadTitle">Заголовок</label>
+        <input type="text" id="threadTitle" required placeholder="Например: Стоит ли пикать Slark первым?" />
+      </div>
+      <div class="td-form-field">
+        <label for="threadTag">Тэг</label>
+        <select id="threadTag" required>
+          <option value="meta">Meta</option>
+          <option value="builds">Builds</option>
+          <option value="heroes">Heroes</option>
+          <option value="general">General</option>
+        </select>
+      </div>
+      <div class="td-form-field">
+        <label for="threadText">Текст</label>
+        <textarea id="threadText" rows="4" required placeholder="Опиши, что хочешь обсудить..."></textarea>
+      </div>
+      <div class="td-form-row td-form-row--between">
+        <button type="submit" class="td-btn td-btn-primary">Опубликовать</button>
+      </div>
+    </form>
+  </div>
 </div>
 
 <!-- MODAL: HERO DETAILS -->
 <div class="td-modal-backdrop" id="heroDetailsModal">
-    <div class="td-modal td-hero-modal">
-        <div class="td-modal-header">
-            <h3 id="heroModalName">Hero name</h3>
-            <button class="td-modal-close" id="closeHeroModal">×</button>
-        </div>
-        <div class="td-hero-modal-body">
-            <div class="td-hero-modal-main">
-                <div class="td-hero-icon-wrapper td-hero-modal-icon">
-                    <img id="heroModalIcon" src="" alt="Hero icon" />
-                </div>
-                <div>
-                    <p class="td-small-note" id="heroModalRoles"></p>
-                    <p id="heroModalShort"></p>
-                </div>
-            </div>
-
-            <div class="td-hero-modal-grid">
-                <div class="td-card td-hero-modal-card">
-                    <h4>Сильные стороны</h4>
-                    <ul class="td-list td-list-dense" id="heroModalStrengths"></ul>
-                </div>
-                <div class="td-card td-hero-modal-card">
-                    <h4>Слабые стороны</h4>
-                    <ul class="td-list td-list-dense" id="heroModalWeaknesses"></ul>
-                </div>
-            </div>
-
-            <div class="td-hero-modal-grid">
-                <div class="td-card td-hero-modal-card">
-                    <h4>Синергии</h4>
-                    <ul class="td-list td-list-dense" id="heroModalSynergy"></ul>
-                </div>
-                <div class="td-card td-hero-modal-card">
-                    <h4>Контры</h4>
-                    <ul class="td-list td-list-dense" id="heroModalCounters"></ul>
-                </div>
-            </div>
-
-            <div class="td-card td-hero-modal-card">
-                <h4>Пример сборки</h4>
-                <div class="td-build-items-row" id="heroModalItems"></div>
-            </div>
-        </div>
+  <div class="td-modal td-hero-modal">
+    <div class="td-modal-header">
+      <h3 id="heroModalName">Hero name</h3>
+      <button class="td-modal-close" id="closeHeroModal" type="button">×</button>
     </div>
+    <div class="td-hero-modal-body">
+      <div class="td-hero-modal-main">
+        <div class="td-hero-icon-wrapper td-hero-modal-icon">
+          <img id="heroModalIcon" src="" alt="Hero icon" />
+        </div>
+        <div>
+          <p class="td-small-note" id="heroModalRoles"></p>
+          <p id="heroModalShort"></p>
+        </div>
+      </div>
+
+      <div class="td-hero-modal-grid">
+        <div class="td-card td-hero-modal-card">
+          <h4>Сильные стороны</h4>
+          <ul class="td-list td-list-dense" id="heroModalStrengths"></ul>
+        </div>
+        <div class="td-card td-hero-modal-card">
+          <h4>Слабые стороны</h4>
+          <ul class="td-list td-list-dense" id="heroModalWeaknesses"></ul>
+        </div>
+      </div>
+
+      <div class="td-hero-modal-grid">
+        <div class="td-card td-hero-modal-card">
+          <h4>Синергии</h4>
+          <ul class="td-list td-list-dense" id="heroModalSynergy"></ul>
+        </div>
+        <div class="td-card td-hero-modal-card">
+          <h4>Контры</h4>
+          <ul class="td-list td-list-dense" id="heroModalCounters"></ul>
+        </div>
+      </div>
+
+      <div class="td-card td-hero-modal-card">
+        <h4>Пример сборки</h4>
+        <div class="td-build-items-row" id="heroModalItems"></div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script src="script.js" defer></script>

@@ -1,122 +1,274 @@
 <?php
+ob_start();
+
 header('Content-Type: application/json; charset=utf-8');
+ini_set('display_errors', 0);
+ini_set('log_errors', 1);
+error_reporting(E_ALL);
 
-// 1. ЗАГРУЗКА .env
-$envPath = __DIR__ . '/.env';
-if (file_exists($envPath)) {
-    $lines = file($envPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-    foreach ($lines as $line) {
-        $line = trim($line);
-        if ($line === '' || strpos($line, '#') === 0) continue;
-        $parts = explode('=', $line, 2);
-        if (count($parts) !== 2) continue;
-        $key = trim($parts[0]);
-        $value = trim(trim($parts[1]), "\"'");
-        if ($key !== '') $_ENV[$key] = $value;
+function jsonResponse(array $data, int $statusCode = 200): void {
+    if (ob_get_length()) {
+        ob_clean();
     }
-} else {
-    echo json_encode(['error' => '.env file not found']);
+
+    http_response_code($statusCode);
+    echo json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     exit;
 }
 
-// 2. КОНФИГ
-$supabaseUrl = $_ENV['SUPABASE_URL'] ?? '';
-$supabaseKey = $_ENV['SUPABASE_KEY'] ?? '';
-$tgToken     = $_ENV['TG_BOT_TOKEN'] ?? '';
-$tgChatId    = $_ENV['TG_CHAT_ID']  ?? '';
+function supabasePost(string $url, array $payload, array $headers): array {
+    $ch = curl_init($url);
 
-if (!$supabaseUrl || !$supabaseKey) {
-    echo json_encode(['error' => 'Supabase config missing']);
-    exit;
-}
-
-// 3. ЧТЕНИЕ ДАННЫХ
-$input = json_decode(file_get_contents('php://input'), true);
-$action = $_GET['action'] ?? '';
-
-if (!$input || !$action) {
-    echo json_encode(['error' => 'Invalid request']);
-    exit;
-}
-
-$email    = $input['email'] ?? '';
-$password = $input['password'] ?? '';
-$nickname = $input['nickname'] ?? '';
-
-// 4. ШАГ 1: SUPABASE AUTH (Регистрация или Вход)
-$endpoint = ($action === 'register') ? '/auth/v1/signup' : '/auth/v1/token?grant_type=password';
-
-$ch = curl_init($supabaseUrl . $endpoint);
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch, CURLOPT_POST, true);
-curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode(['email' => $email, 'password' => $password]));
-curl_setopt($ch, CURLOPT_HTTPHEADER, [
-    'apikey: ' . $supabaseKey,
-    'Content-Type: application/json'
-]);
-
-$authResponse = curl_exec($ch);
-$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-curl_close($ch);
-
-$authData = json_decode($authResponse, true);
-
-// КЛЮЧЕВОЕ ИСПРАВЛЕНИЕ: Достаем ID правильно
-$supabaseUserId = $authData['id'] ?? $authData['user']['id'] ?? null;
-$isOk = ($httpCode >= 200 && $httpCode < 300) && !isset($authData['error']);
-
-// 5. ШАГ 2: СОХРАНЕНИЕ ПРОФИЛЯ
-if ($action === 'register' && $isOk && $supabaseUserId) {
-    
-    // Формируем данные (snake_case как в таблице)
-    $profileData = [
-        'id'         => $supabaseUserId,
-        'email'      => $email,
-        'nickname'   => $nickname,
-        'rank_value' => $input['rankValue'] ?? null,
-        'rank_label' => $input['rankLabel'] ?? null,
-        'role'       => $input['role'] ?? null,
-        'role_label' => $input['roleLabel'] ?? null,
-        'about'      => $input['about'] ?? null
-    ];
-
-    $chP = curl_init($supabaseUrl . '/rest/v1/profiles');
-    curl_setopt($chP, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($chP, CURLOPT_POST, true);
-    
-    // ОТПРАВЛЯЕМ ИМЕННО $profileData
-    curl_setopt($chP, CURLOPT_POSTFIELDS, json_encode($profileData)); 
-    
-    curl_setopt($chP, CURLOPT_HTTPHEADER, [
-        'apikey: ' . $supabaseKey,
-        'Authorization: Bearer ' . $supabaseKey, // Должен быть Service Role Key
-        'Content-Type: application/json',
-        'Prefer: return=minimal'
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_POST => true,
+        CURLOPT_POSTFIELDS => json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+        CURLOPT_HTTPHEADER => $headers,
+        CURLOPT_TIMEOUT => 30,
     ]);
 
-    curl_exec($chP);
-    curl_close($chP);
+    $response = curl_exec($ch);
+    $curlError = curl_error($ch);
+    $httpCode = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+    if (is_resource($ch) || $ch instanceof CurlHandle) {
+        curl_close($ch);
+    }
+
+    if ($response === false) {
+        return [
+            'ok' => false,
+            'http_code' => 500,
+            'error' => 'cURL error: ' . $curlError,
+            'body' => null,
+            'raw' => null,
+        ];
+    }
+
+    $decoded = json_decode($response, true);
+
+    return [
+        'ok' => $httpCode >= 200 && $httpCode < 300,
+        'http_code' => $httpCode,
+        'error' => null,
+        'body' => $decoded ?? $response,
+        'raw' => $response,
+    ];
 }
 
-// 6. ШАГ 3: TELEGRAM
-if ($isOk && $tgToken && $tgChatId) {
-    $actionTitle = ($action === 'register') ? "🔔 НОВА РЕЄСТРАЦІЯ" : "✅ НОВИЙ ВХІД";
-    $tgText = "<b>$actionTitle</b>\n\n"
-            . "👤 Нік: " . ($nickname ?: '—') . "\n"
-            . "📧 Email: <code>$email</code>\n"
-            . "🏅 Ранг: " . ($input['rankLabel'] ?? '—') . "\n"
-            . "🎯 Роль: " . ($input['roleLabel'] ?? '—') . "\n"
-            . "🌐 IP: " . ($_SERVER['REMOTE_ADDR'] ?? 'unknown');
+function telegramSend(string $botToken, string $chatId, string $message): array {
+    $url = "https://api.telegram.org/bot{$botToken}/sendMessage";
 
-    $tgUrl = "https://api.telegram.org/bot{$tgToken}/sendMessage";
-    $tgCh = curl_init($tgUrl);
-    curl_setopt($tgCh, CURLOPT_POST, true);
-    curl_setopt($tgCh, CURLOPT_POSTFIELDS, ['chat_id' => $tgChatId, 'text' => $tgText, 'parse_mode' => 'HTML']);
-    curl_setopt($tgCh, CURLOPT_RETURNTRANSFER, true);
-    curl_exec($tgCh);
-    curl_close($tgCh);
+    $payload = [
+        'chat_id' => $chatId,
+        'text' => $message,
+        'parse_mode' => 'HTML',
+    ];
+
+    $ch = curl_init($url);
+
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_POST => true,
+        CURLOPT_POSTFIELDS => http_build_query($payload),
+        CURLOPT_TIMEOUT => 30,
+    ]);
+
+    $response = curl_exec($ch);
+    $curlError = curl_error($ch);
+    $httpCode = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+    if (is_resource($ch) || $ch instanceof CurlHandle) {
+        curl_close($ch);
+    }
+
+    if ($response === false) {
+        return [
+            'ok' => false,
+            'http_code' => 500,
+            'error' => 'Telegram cURL error: ' . $curlError,
+            'body' => null,
+        ];
+    }
+
+    $decoded = json_decode($response, true);
+
+    return [
+        'ok' => $httpCode >= 200 && $httpCode < 300 && !empty($decoded['ok']),
+        'http_code' => $httpCode,
+        'error' => $decoded['description'] ?? null,
+        'body' => $decoded,
+    ];
 }
 
-// ОТВЕТ КЛИЕНТУ
-http_response_code($httpCode);
-echo $authResponse;
+function safeText(mixed $value): string {
+    return htmlspecialchars(trim((string)$value), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+}
+
+$env = parse_ini_file(__DIR__ . '/.env', false, INI_SCANNER_RAW);
+
+if ($env === false || !is_array($env)) {
+    jsonResponse([
+        'success' => false,
+        'error' => 'Не вдалося прочитати .env'
+    ], 500);
+}
+
+$supabaseUrl = isset($env['SUPABASE_URL']) ? trim((string)$env['SUPABASE_URL']) : '';
+$supabaseKey = isset($env['SUPABASE_KEY']) ? trim((string)$env['SUPABASE_KEY']) : '';
+$supabaseServiceKey = isset($env['SUPABASE_SERVICE_KEY']) ? trim((string)$env['SUPABASE_SERVICE_KEY']) : '';
+$tgBotToken = isset($env['TG_BOT_TOKEN']) ? trim((string)$env['TG_BOT_TOKEN']) : '';
+$tgChatId = isset($env['TG_CHAT_ID']) ? trim((string)$env['TG_CHAT_ID']) : '';
+
+if ($supabaseUrl === '' || $supabaseKey === '' || $supabaseServiceKey === '') {
+    jsonResponse([
+        'success' => false,
+        'error' => 'У .env відсутні SUPABASE_URL, SUPABASE_KEY або SUPABASE_SERVICE_KEY'
+    ], 500);
+}
+
+$supabaseUrl = rtrim($supabaseUrl, '/');
+
+$rawInput = file_get_contents('php://input');
+$input = json_decode($rawInput, true);
+
+if (!is_array($input)) {
+    jsonResponse([
+        'success' => false,
+        'error' => 'Неверный JSON в теле запроса'
+    ], 400);
+}
+
+$action = $_GET['action'] ?? '';
+
+if (!in_array($action, ['register', 'login'], true)) {
+    jsonResponse([
+        'success' => false,
+        'error' => 'Некорректный action. Используй ?action=register или ?action=login'
+    ], 400);
+}
+
+$email = trim((string)($input['email'] ?? ''));
+$password = (string)($input['password'] ?? '');
+$nickname = trim((string)($input['nickname'] ?? 'Player'));
+$rankValue = trim((string)($input['rankValue'] ?? ''));
+$role = trim((string)($input['role'] ?? ''));
+$about = trim((string)($input['about'] ?? ''));
+$avatar = (string)($input['avatar'] ?? '');
+
+if ($email === '' || $password === '') {
+    jsonResponse([
+        'success' => false,
+        'error' => 'Email и пароль обязательны'
+    ], 400);
+}
+
+$authUrl = $supabaseUrl . (
+    $action === 'register'
+        ? '/auth/v1/signup'
+        : '/auth/v1/token?grant_type=password'
+);
+
+$authPayload = [
+    'email' => $email,
+    'password' => $password,
+];
+
+$authHeaders = [
+    'apikey: ' . $supabaseKey,
+    'Content-Type: application/json',
+];
+
+$authResult = supabasePost($authUrl, $authPayload, $authHeaders);
+
+if (!$authResult['ok']) {
+    jsonResponse([
+        'success' => false,
+        'step' => 'auth',
+        'http_code' => $authResult['http_code'],
+        'error' => $authResult['body']['msg']
+            ?? $authResult['body']['error_description']
+            ?? $authResult['body']['message']
+            ?? $authResult['body']['error']
+            ?? $authResult['error']
+            ?? 'Ошибка авторизации в Supabase',
+        'details' => $authResult['body'],
+    ], $authResult['http_code'] > 0 ? $authResult['http_code'] : 500);
+}
+
+$authData = $authResult['body'];
+
+if ($action === 'register') {
+    $userId = $authData['user']['id'] ?? $authData['id'] ?? null;
+
+    if (!$userId) {
+        jsonResponse([
+            'success' => false,
+            'step' => 'profile',
+            'error' => 'Регистрация прошла, но не удалось получить user id',
+            'auth_response' => $authData,
+        ], 500);
+    }
+
+    $profilePayload = [
+        'id' => $userId,
+        'nickname' => $nickname !== '' ? $nickname : 'Player',
+        'rank' => $rankValue,
+        'role' => $role,
+        'email' => $email,
+        'about' => $about,
+        'avatar' => $avatar,
+    ];
+
+    $profileUrl = $supabaseUrl . '/rest/v1/profiles';
+
+    $profileHeaders = [
+        'apikey: ' . $supabaseServiceKey,
+        'Authorization: Bearer ' . $supabaseServiceKey,
+        'Content-Type: application/json',
+        'Prefer: return=representation',
+    ];
+
+    $profileResult = supabasePost($profileUrl, $profilePayload, $profileHeaders);
+
+    if (!$profileResult['ok']) {
+        jsonResponse([
+            'success' => false,
+            'step' => 'profile',
+            'error' => $profileResult['body']['message']
+                ?? $profileResult['body']['error']
+                ?? $profileResult['error']
+                ?? 'Не удалось записать профиль в profiles',
+            'details' => $profileResult['body'],
+            'auth_response' => $authData,
+        ], $profileResult['http_code'] > 0 ? $profileResult['http_code'] : 500);
+    }
+
+    $telegramResult = null;
+
+    if ($tgBotToken !== '' && $tgChatId !== '') {
+        $message =
+            "🎮 <b>Нова реєстрація True Dota</b>\n\n" .
+            "👤 <b>Нік:</b> " . safeText($nickname !== '' ? $nickname : 'Player') . "\n" .
+            "📧 <b>Email:</b> " . safeText($email) . "\n" .
+            "🏆 <b>Ранг:</b> " . safeText($rankValue !== '' ? $rankValue : 'Не вказано') . "\n" .
+            "🎯 <b>Роль:</b> " . safeText($role !== '' ? $role : 'Не вказано') . "\n" .
+            "📝 <b>Про себе:</b> " . safeText($about !== '' ? $about : 'Не вказано');
+
+        $telegramResult = telegramSend($tgBotToken, $tgChatId, $message);
+    }
+
+    jsonResponse([
+        'success' => true,
+        'message' => 'Регистрация успешна, профиль создан',
+        'auth' => $authData,
+        'profile' => $profileResult['body'],
+        'telegram' => $telegramResult,
+    ]);
+}
+
+jsonResponse([
+    'success' => true,
+    'message' => 'Вход выполнен успешно',
+    'auth' => $authData,
+]);

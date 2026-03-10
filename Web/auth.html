@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>True Dota — Вход</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body class="td-root">
+  <div class="td-auth-bg" aria-hidden="true"></div>
+
+  <div class="td-auth-wrap">
+    <div class="td-card td-auth-card">
+      <div class="td-auth-header">
+        <h2 class="td-auth-title">True Dota</h2>
+        <p class="td-auth-sub">Увійди або зареєструйся, щоб продовжити.</p>
+      </div>
+
+      <div class="td-auth-tabs">
+        <button class="td-auth-tab td-auth-tab--active" id="tabLogin" type="button">Вхід</button>
+        <button class="td-auth-tab" id="tabRegister" type="button">Реєстрація</button>
+      </div>
+
+      <!-- LOGIN -->
+      <form id="loginForm" class="td-form">
+        <div class="td-form-field td-form-field--full">
+          <label>Email</label>
+          <input type="email" id="loginEmail" required placeholder="name@mail.com" />
+        </div>
+
+        <div class="td-form-field td-form-field--full">
+          <label>Пароль</label>
+          <input type="password" id="loginPassword" minlength="6" required placeholder="••••••••" />
+        </div>
+
+        <button class="td-btn td-btn-primary td-auth-submit" type="submit">Увійти</button>
+        <div class="td-form-status" id="loginStatus"></div>
+      </form>
+
+      <div class="td-auth-divider"><span>або</span></div>
+
+      <!-- REGISTER -->
+      <form id="registerForm" class="td-form auth-hidden">
+        <!-- ✅ добавили аватарку + превью (это ждёт auth.js) -->
+        <div class="td-form-field td-form-field--full">
+          <label>Аватар (png/jpg/webp, до 2MB)</label>
+          <div style="display:flex; gap:12px; align-items:center;">
+            <div
+              id="regAvatarPreview"
+              class="td-avatar"
+              style="width:56px;height:56px;border-radius:14px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);background-size:cover;background-position:center;"
+              aria-label="Preview"
+            ></div>
+            <input type="file" id="regAvatar" accept="image/png,image/jpeg,image/webp" />
+          </div>
+          
+        </div>
+
+        <div class="td-auth-grid">
+          <div class="td-form-field">
+            <label>Нікнейм</label>
+            <input type="text" id="regNickname" required placeholder="MetaSeeker" />
+          </div>
+          <div class="td-form-field">
+            <label>Email</label>
+            <input type="email" id="regEmail" required placeholder="name@mail.com" />
+          </div>
+        </div>
+
+        <div class="td-auth-grid">
+          <div class="td-form-field">
+            <label>Пароль</label>
+            <input type="password" id="regPassword" minlength="6" required placeholder="мінімум 6 символів" />
+          </div>
+          <div class="td-form-field">
+            <label>Ранг</label>
+            <select id="regRank">
+              <option value="">Не вказувати</option>
+              <option value="herald">Herald / Guardian</option>
+              <option value="crusader">Crusader / Archon</option>
+              <option value="legend">Legend / Ancient</option>
+              <option value="divine">Divine / Immortal</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="td-form-field td-form-field--full">
+          <label>Улюблена роль</label>
+          <div class="td-auth-radio">
+            <label><input type="radio" name="regRole" value="carry" /> Carry</label>
+            <label><input type="radio" name="regRole" value="mid" /> Mid</label>
+            <label><input type="radio" name="regRole" value="offlane" /> Offlane</label>
+            <label><input type="radio" name="regRole" value="support" /> Support</label>
+          </div>
+        </div>
+
+        <div class="td-form-field td-form-field--full">
+          <label>Про себе</label>
+          <textarea id="regAbout" rows="3" placeholder="Коротко: роль, MMR, стиль гри..."></textarea>
+        </div>
+
+        <label class="td-auth-agree">
+          <input type="checkbox" id="regAgree" required />
+          Погоджуюсь з правилами.
+        </label>
+
+        <button class="td-btn td-btn-primary td-auth-submit" type="submit">Створити акаунт</button>
+        <div class="td-form-status" id="registerStatus"></div>
+      </form>
+    </div>
+  </div>
+
+  <script src="auth.js" defer></script>
+</body>
+</html>

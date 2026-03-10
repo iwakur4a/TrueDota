@@ -5,11 +5,11 @@ from app.users_id import read_user_id
 
 
 async def get_db(supabase: AsyncClient, bot: Bot):
-    async def notify_all(bot, email, nickname, rank_value, role, about):  # отправка в чат с ботом
+    async def notify_all(bot, email, nickname, rank, role, about):  # отправка в чат с ботом
         text = f"""Зарегистрирован новый пользователь
 👤Ник: {nickname}
 📧Почта: {email}
-🏅Ранг: {rank_value}
+🏅Ранг: {rank}
 🎯Роль: {role}
 🗣О себе: {about}"""
         users_id = read_user_id()
@@ -21,11 +21,11 @@ async def get_db(supabase: AsyncClient, bot: Bot):
         new_record = payload.get("data", {}).get("record", {})
         email = new_record.get("email", "неизвестен")
         nickname = new_record.get("nickname", "неизвестен")
-        rank_value = new_record.get("rank_value", "неизвестен")
+        rank = new_record.get("rank", "неизвестен")
         role = new_record.get("role", "неизвестна")
         about = new_record.get("about", " ")
 
-        asyncio.create_task(notify_all(bot, email, nickname, rank_value, role, about))
+        asyncio.create_task(notify_all(bot, email, nickname, rank, role, about))
 
     channel = supabase.channel("RunTimeToken")  # подключение к каналу бд
     channel.on_postgres_changes(
